@@ -7,6 +7,8 @@ import configparser
 from src.utils.normalize import normalize
 from datetime import datetime, timedelta
 from alive_progress import alive_bar
+import re
+from collections import Counter
 
 config = configparser.ConfigParser()
 config.read("config.ini")
@@ -157,3 +159,22 @@ class Chat:
                 self.addMessage(message=message)
                 message.raw = ""
                 bar()
+
+    def getWorldFrec(self) -> Counter:
+        content: List[str] = [
+            msg.content for msg in self.messages if msg.content]
+        cleanContent: List[str] = [
+            re.sub(r"[^\w\s]", "", message.lower())
+            for message in content
+        ]
+
+        words: List[str] = [
+            word for message in cleanContent for word in message.split()
+
+        ]
+
+        del content
+        del cleanContent
+
+        worldFrec: Counter = Counter(words)
+        return worldFrec
