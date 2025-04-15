@@ -5,6 +5,9 @@
 data/chats/*.txt
 !data/chats/test.txt
 
+data/output/*data.json
+
+
 
 
 # Byte-compiled / optimized / DLL files

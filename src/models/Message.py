@@ -15,7 +15,7 @@ class Message:
     date: Optional[datetime] = field(default=None)
     author: Optional[str] = field(default=None)
     content: Optional[str] = field(default=None)
-    characters: int = field(default=int)
+    characters: int = field(default=0)
     raw: Optional[str] = field(default=None)
 
     def __post_init__(self):
@@ -24,14 +24,17 @@ class Message:
     def asJson(self) -> str:
         data: str = json.dumps(
             {
-                "date": self.date.strftime(config["Formats"]["date"]),
+                "date": (
+                    self.date.strftime(config["Formats"]["date"])
+                    if not self.date is None else ""
+                ),
                 "author": self.author,
                 "content": self.content,
             }
         )
         return data
 
-    def asDict(self, datetimeAsString: True) -> Dict[str, Union[datetime, str, None]]:
+    def asDict(self, datetimeAsString: bool = True) -> Dict[str, Union[datetime, str, None]]:
         data: Dict[str, Union[datetime, str, None]] = {
             "date": self.date,
             "author": self.author,
@@ -39,7 +42,10 @@ class Message:
         }
 
         if datetimeAsString:
-            data["date"] = self.date.strftime(config["Formats"]["date"])
+            data["date"] = (
+                self.date.strftime(config["Formats"]["date"])
+                if not self.date is None else ""
+            )
 
         return data
 

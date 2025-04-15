@@ -31,11 +31,17 @@ class Chat:
         return [msg for msg in self.messages if msg.author == author]
 
     def getMessagesGroupedByDate(self, untilToday: bool) -> Dict[datetime, List[Message]]:
-        startDate = self.messages[0].date
+        startDate: Optional[datetime] = self.messages[0].date
+        endDate: Optional[datetime] = None
         if untilToday:
             endDate = datetime.now()
         else:
             endDate = self.messages[-1].date
+
+        if not isinstance(startDate, datetime):
+            raise TypeError("Start date should be a datetime object")
+        if not isinstance(endDate, datetime):
+            raise TypeError("End date should be a datetime object")
 
         startDate = datetime(
             year=startDate.year, month=startDate.month, day=startDate.day)
@@ -55,6 +61,10 @@ class Chat:
         while len(tmpMessages) > 0:
             currentMessage = tmpMessages[-1]
 
+            if not isinstance(currentMessage.date, datetime):
+                raise TypeError(
+                    f"Message.date: {currentMessage.asJson()} should be a datetime object")
+
             currentDate = datetime(
                 year=currentMessage.date.year,
                 month=currentMessage.date.month,
@@ -68,16 +78,17 @@ class Chat:
         return messagesGroupedByDate
 
     def getMessagesGroupedByDateAndAuthor(self, untilToday: bool) -> Dict[datetime, Dict[Union[str, None], List[Message]]]:
-        startDate = self.messages[0].date
+        startDate: Optional[datetime] = self.messages[0].date
+        endDate: Optional[datetime] = None
         if untilToday:
             endDate = datetime.now()
         else:
             endDate = self.messages[-1].date
 
-        startDate = datetime(
-            year=startDate.year, month=startDate.month, day=startDate.day)
-        endDate = datetime(
-            year=endDate.year, month=endDate.month, day=endDate.day)
+        if not isinstance(startDate, datetime):
+            raise TypeError("Start date should be a datetime object")
+        if not isinstance(endDate, datetime):
+            raise TypeError("End date should be a datetime object")
 
         delta = endDate - startDate
 
@@ -85,12 +96,9 @@ class Chat:
                  * i for i in range(delta.days + 1)]
 
         tmpMessages = self.messages.copy()
-        messagesGroupedByDateAndAuthor: Dict[datetime, Dict[Union[str, None], List[str]]] = {
-            date: {author: [] for author in self.authors} for date in dates
-        }
 
         messagesGroupedByDateAndAuthor: Dict[
-            datetime, Dict[Union[str, None], List[str]]
+            datetime, Dict[Optional[str], List[Message]]
         ] = {}
 
         for date in dates:
@@ -100,6 +108,10 @@ class Chat:
 
         while len(tmpMessages) > 0:
             currentMessage = tmpMessages[-1]
+
+            if not isinstance(currentMessage.date, datetime):
+                raise TypeError(
+                    f"Message.date: {currentMessage.asJson()} should be a datetime object")
 
             currentDate = datetime(
                 year=currentMessage.date.year,
