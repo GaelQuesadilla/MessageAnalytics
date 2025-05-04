@@ -1,3 +1,4 @@
+from typing import List, Dict, Union
 import json
 from src.models.Chat import Chat
 from src.models.Message import Message
@@ -19,13 +20,18 @@ chat = Chat(file=None)
 # chat.file = file
 # chat.loadFromFile()
 
-file = Path.cwd() / "data" / "chats" / "Cristianas.txt"
+file = Path.cwd() / "data" / "chats" / "votouniv.txt"
 chat.file = file
 chat.loadFromFile()
 
 pp(chat.stats())
 
-pp(chat.getWorldFrec().most_common(100))
+print("\n\n\n")
+
+auths: List[Dict[str, Union[str, int]]] = chat.stats().get("MessagesByAuthor")
+pp(sorted(auths, key=lambda item: item.get("messages"), reverse=True))
+
+# pp(chat.getWorldFrec().most_common(100))
 
 
 # filePath = Path.cwd() / "data" / "data.json"

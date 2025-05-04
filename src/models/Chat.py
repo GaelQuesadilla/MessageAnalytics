@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 from alive_progress import alive_bar
 import re
 from collections import Counter
-
+from src.models.Author import Author
 config = configparser.ConfigParser()
 config.read("config.ini")
 
@@ -18,14 +18,22 @@ config.read("config.ini")
 class Chat:
     file: Optional[Path] = field(default=None)
     messages: List[Message] = field(default_factory=list)
-    authors: Set[Union[str, None]] = field(default_factory=set)
+    authors: List[Author] = field(default_factory=list)
 
     def asJson(self):
         return json.dumps([message.asDict(datetimeAsString=True) for message in self.messages])
 
     def addMessage(self, message: Message) -> None:
         self.messages.append(message)
-        self.authors.add(message.author)
+
+        if message.author not in [author.name for author in self.authors]:
+            author = Author(name=message.author)
+            self.authors.append(author)
+
+        for author in self.authors:
+            if author.name == message.author:
+                author.messages += 1
+                break
 
     def getAuthorMessages(self, author: Union[str, None]) -> List[Message]:
         return [msg for msg in self.messages if msg.author == author]
@@ -90,6 +98,10 @@ class Chat:
         if not isinstance(endDate, datetime):
             raise TypeError("End date should be a datetime object")
 
+        startDate = datetime(
+            year=startDate.year, month=startDate.month, day=startDate.day)
+        endDate = datetime(
+            year=endDate.year, month=endDate.month, day=endDate.day)
         delta = endDate - startDate
 
         dates = [startDate + timedelta(days=1)
@@ -103,7 +115,7 @@ class Chat:
 
         for date in dates:
             messagesGroupedByDateAndAuthor[date] = {}
-            for author in self.authors:
+            for author in [author.name for author in self.authors]:
                 messagesGroupedByDateAndAuthor[date][author] = []
 
         while len(tmpMessages) > 0:
@@ -126,13 +138,11 @@ class Chat:
 
         return messagesGroupedByDateAndAuthor
 
-    def stats(self) -> Dict[str, Union[int, Dict[Union[str, None], int]]]:
+    def stats(self) -> Dict[str, Union[int, List[Dict[str, Union[bool, str, int, None]]]]]:
         return {
             "TotalMessages": len(self.messages),
             "TotalAuthors": len(self.authors),
-            "MessagesByAuthor": {
-                author: len(self.getAuthorMessages(author)) for author in self.authors
-            }
+            "MessagesByAuthor": [author.asDict() for author in self.authors]
 
         }
 

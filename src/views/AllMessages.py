@@ -30,7 +30,7 @@ class AllMessages():
                     len(msgsByAuth.get(author)) for date, msgsByAuth
                     in msgGroupedByDateAndAuthor.items()
                 ]
-            for author in self.chat.authors}
+            for author in [author.name for author in self.chat.authors]}
 
     def show(self):
         fig, ax = plt.subplots()
@@ -42,7 +42,7 @@ class AllMessages():
             marker="",
             linestyle="-"
         )
-        for author in self.chat.authors:
+        for author in [author.name for author in self.chat.authors]:
             if author == "Provider":
                 continue
             ax.plot_date(
