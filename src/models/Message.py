@@ -18,6 +18,9 @@ class Message:
     characters: int = field(default=0)
     raw: Optional[str] = field(default=None)
 
+    # only for stats
+    responseOf: List[str] = field(default_factory=list)
+
     def __post_init__(self):
         self.raw = self.raw
 

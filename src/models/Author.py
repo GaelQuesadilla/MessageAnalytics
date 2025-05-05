@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional, Dict, Union
+from typing import Optional, Dict, Union, List
 
 
 @dataclass
@@ -10,7 +10,7 @@ class Author:
 
     def asDict(self) -> Dict[str, Union[bool, int, str, None]]:
         return {
-            "inChat": self.inChat,
+            # "inChat": self.inChat,
             "messages": self.messages,
             "name": self.name,
         }
